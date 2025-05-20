@@ -50,7 +50,6 @@ public class Graph {
         if (sortedList.size() != adjlist.size()) {
             return null;
         }
-
         return sortedList;
     }
     
