@@ -10,12 +10,8 @@ public class Main {
             tree.insertNode(value);
         }
 
-        // System.out.println("\n\nPreorder traversal:");
-        // tree.preorderTraversal();
         System.out.println("\n\nInorder traversal:");
         tree.inorderTraversal();
-        // System.out.println("\n\nPostorder traversal:");
-        // tree.postorderTraversal();
 
         System.out.println("\n\nSearching for: ");
         tree.searchBST(80);
