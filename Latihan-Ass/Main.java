@@ -1,145 +1,123 @@
 import java.util.*;
 
-
 class CityGraph {
-    
-    private final Map<String, List<String>> adjacencyList;
+    private LinkedList<String> cities;
+    private LinkedList<LinkedList<String>> adjacencyList;
 
-    
     public CityGraph() {
-        this.adjacencyList = new HashMap<>(); 
+        this.cities = new LinkedList<>();
+        this.adjacencyList = new LinkedList<>();
     }
 
-    
     public void addCity(String city) {
-        
-        adjacencyList.putIfAbsent(city, new ArrayList<>());
+        if (!cities.contains(city)) {
+            cities.add(city);
+            adjacencyList.add(new LinkedList<>());
+        }
     }
 
-    
+    private int getCityIndex(String city) {
+        return cities.indexOf(city);
+    }
+
     public void addConnection(String city1, String city2) {
+        addCity(city1);
+        addCity(city2);
         
-        adjacencyList.putIfAbsent(city1, new ArrayList<>());
-        adjacencyList.putIfAbsent(city2, new ArrayList<>());
-
+        int index1 = getCityIndex(city1);
+        int index2 = getCityIndex(city2);
         
-        adjacencyList.get(city1).add(city2);  
-        adjacencyList.get(city2).add(city1);  
-    }
-    
-    
-    public List<String> getNeighbors(String city) {
-        
-        return adjacencyList.getOrDefault(city, Collections.emptyList());
+        if (index1 != -1 && index2 != -1) {
+            adjacencyList.get(index1).add(city2);
+            adjacencyList.get(index2).add(city1);
+        }
     }
 
-    
-    public List<String> bfsTraversal(String startCity) {
-        
-        List<String> visitedOrder = new ArrayList<>();
-        
-        
-        Queue<String> queue = new LinkedList<>();
-        
-        
-        Set<String> visited = new HashSet<>();
+    public LinkedList<String> getNeighbors(String city) {
+        int index = getCityIndex(city);
+        if (index != -1) {
+            return adjacencyList.get(index);
+        }
+        return new LinkedList<>();
+    }
 
-        
-        if (!adjacencyList.containsKey(startCity)) {
+    public LinkedList<String> bfsTraversal(String startCity) {
+        LinkedList<String> visitedOrder = new LinkedList<>();
+        LinkedList<String> queue = new LinkedList<>();
+        LinkedList<String> visited = new LinkedList<>();
+
+        if (!cities.contains(startCity)) {
             System.out.println("Kota " + startCity + " tidak ditemukan!");
             return visitedOrder;
         }
 
-        
-        queue.add(startCity);           
-        visited.add(startCity);         
+        queue.addLast(startCity);
+        visited.add(startCity);
 
-        
         while (!queue.isEmpty()) {
-            
-            String currentCity = queue.poll();
-            visitedOrder.add(currentCity);
+            String currentCity = queue.removeFirst();
+            visitedOrder.addLast(currentCity);
             
             System.out.println("Mengunjungi: " + currentCity);
 
-            
-            List<String> neighbors = getNeighbors(currentCity);
-            Collections.sort(neighbors); 
+            LinkedList<String> neighbors = getNeighbors(currentCity);
+            Collections.sort(neighbors);
 
-            
             for (String neighbor : neighbors) {
                 if (!visited.contains(neighbor)) {
-                    visited.add(neighbor);     
-                    queue.add(neighbor);       
+                    visited.add(neighbor);
+                    queue.addLast(neighbor);
                 }
             }
         }
         return visitedOrder;
     }
 
-    
-    public List<String> dfsTraversal(String startCity) {
-        
-        List<String> visitedOrder = new ArrayList<>();
-        
-        
-        Stack<String> stack = new Stack<>();
-        
-        
-        Set<String> visited = new HashSet<>();
+    public LinkedList<String> dfsTraversal(String startCity) {
+    LinkedList<String> visitedOrder = new LinkedList<>();
+    LinkedList<String> stack = new LinkedList<>();
+    LinkedList<String> visited = new LinkedList<>();
 
-        
-        if (!adjacencyList.containsKey(startCity)) {
-            System.out.println("Kota " + startCity + " tidak ditemukan!");
-            return visitedOrder;
-        }
+    if (!cities.contains(startCity)) {
+        System.out.println("Kota " + startCity + " tidak ditemukan!");
+        return visitedOrder;
+    }
 
-        
-        stack.push(startCity);          
+    stack.addFirst(startCity);
 
+    while (!stack.isEmpty()) {
+        String currentCity = stack.removeFirst();
         
-        while (!stack.isEmpty()) {
+        if (!visited.contains(currentCity)) { // Ganti 'neighbor' dengan 'currentCity'
+            visited.add(currentCity);
+            visitedOrder.addLast(currentCity);
             
-            String currentCity = stack.pop();
-            
-            
-            if (!visited.contains(currentCity)) {
-                visited.add(currentCity);           
-                visitedOrder.add(currentCity);
-                
-                System.out.println("Mengunjungi: " + currentCity);
+            System.out.println("Mengunjungi: " + currentCity);
 
-                
-                List<String> neighbors = getNeighbors(currentCity);
-                
-                Collections.sort(neighbors, Collections.reverseOrder()); 
+            LinkedList<String> neighbors = getNeighbors(currentCity);
+            Collections.sort(neighbors, Collections.reverseOrder());
 
-                
-                for (String neighbor : neighbors) {
-                    if (!visited.contains(neighbor)) {
-                        stack.push(neighbor);
-                    }
+            for (String neighbor : neighbors) {
+                if (!visited.contains(neighbor)) {
+                    stack.addFirst(neighbor);
                 }
             }
         }
-        return visitedOrder;
     }
+    return visitedOrder;
 }
-
+}
 
 public class Main {
     public static void main(String[] args) {
         System.out.println("=== SIMULASI PERJALANAN DITA ===\n");
         
-        
         CityGraph ukMap = new CityGraph();
 
-        
         String[] cities = {
             "London", "Birmingham", "Salisbury", "Bristol", "Cardiff", 
             "Manchester", "Kingston", "Liverpool", "Newcastle", "Edinburgh", "Glasgow"
         };
-        
         
         System.out.println("Menambahkan kota-kota:");
         for (String city : cities) {
@@ -147,7 +125,6 @@ public class Main {
             System.out.println("- " + city);
         }
 
-        
         System.out.println("\nMenambahkan jalur antar kota:");
         ukMap.addConnection("London", "Birmingham");
         ukMap.addConnection("London", "Salisbury");
@@ -166,29 +143,25 @@ public class Main {
         
         System.out.println("Jalur berhasil ditambahkan!\n");
         
-        
         String startCity = "London";
         System.out.println("=====================================================");
         System.out.println("Perencanaan Perjalanan Dita");
         System.out.println("Kota Awal: " + startCity);
         System.out.println("=====================================================\n");
 
-        
         System.out.println("SKENARIO A: Mengunjungi Kota Terdekat Dulu (BFS)");
         System.out.println("Strategi: Level demi level, seperti gelombang");
         System.out.println("---------------------------------------------------");
-        List<String> bfsResult = ukMap.bfsTraversal(startCity);
+        LinkedList<String> bfsResult = ukMap.bfsTraversal(startCity);
         System.out.println("\nRute BFS:");
         printRoute(bfsResult);
 
-        
         System.out.println("\nSKENARIO B: Jelajahi Sejauh Mungkin Dulu (DFS)");
         System.out.println("Strategi: Masuk dalam dulu, baru backtrack");
         System.out.println("---------------------------------------------------");
-        List<String> dfsResult = ukMap.dfsTraversal(startCity);
+        LinkedList<String> dfsResult = ukMap.dfsTraversal(startCity);
         System.out.println("\nRute DFS:");
         printRoute(dfsResult);
-        
         
         System.out.println("\n" + "=".repeat(50));
         System.out.println("PERBANDINGAN HASIL:");
@@ -200,14 +173,13 @@ public class Main {
         System.out.println("- DFS cocok untuk eksplorasi mendalam");
     }
     
-    
-    private static void printRoute(List<String> route) {
+    private static void printRoute(LinkedList<String> route) {
         if (route.isEmpty()) {
-            System.out.println("❌ Rute tidak dapat dibuat.");
+            System.out.println("Rute tidak dapat dibuat.");
             return;
         }
         
-        System.out.print("🛤️  ");
+        System.out.print("  ");
         for (int i = 0; i < route.size(); i++) {
             System.out.print(route.get(i));
             if (i < route.size() - 1) {
